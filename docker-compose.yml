@@ -1,0 +1,30 @@
+version: '3.4'
+services:
+  mysql:
+    image: mysql
+    container_name: mtab_mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment: # if sth not works, rm docker and create again
+      MYSQL_ROOT_PASSWORD: ThePassword # login as root
+      MYSQL_DATABASE: mtab
+    volumes:
+      - ./backend/database:/docker-entrypoint-initdb.d
+    ports:
+    - 3307:3306 # external:intenal
+  vuejs:
+    container_name: mtab_vuejs
+    restart: always
+    build:
+      context: .
+      dockerfile: ./docker/vuejs/Dockerfile
+      target: # uncomment one stage:  
+              dev-stage          # auto-reloading for development
+    command: []
+    ports:
+      - "8081:8081" # external:internal
+    volumes:
+      - "./frontend/src:/app/src"
+    environment:
+      - ENV=development
+      - PORT=8081 #need to be 80, becouse of nginx configuration is set to 80
